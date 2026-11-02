@@ -4,27 +4,30 @@
 
 - **上行**：Mac mini → 芯片；**下行**：芯片 → Mac mini。
 - 成绩单位为十进制 **kB/s**（1 kB/s = 1000 B/s），统计接收端实际收到且校验通过的应用载荷，不含 ATT、L2CAP、LL 头和协议控制包。
-- 每格成绩为“**上行 / 下行**”，CH32 历史成绩取两次独立测量的算术平均值；本次 N32 测量取三次均值，PHY 由用户通过 nRF Connect 外部确认。均保留两位小数，不取单次最好成绩、双向合计值或 PHY 标称速率。
-- 当前 CH32 历史基线使用 Mac14,12（arm64）、macOS 15.7.5、Release 固件；所有案例实际连接间隔均为 15 ms，DLE TX/RX 均为 251 B。
-- 表中的包长、MTU、PHY 和链路参数是 CH32 的历史实测配置，不是其他芯片的准入门槛。新芯片按实际能力尽力协商并记录；不支持的通道或 PHY 不记 0，也不影响其他有效成绩入库。
+- 每格成绩为“**上行 / 下行**”，测量取三次均值，均保留两位小数，不取单次最好成绩、双向合计值或 PHY 标称速率。
+- 历史基线使用 Mac14,12（arm64）、macOS 15.7.5、Release 固件；所有案例实际连接间隔均为 15 ms，DLE TX/RX 均为 251 B。
+
+**agent 在以下根据格式填写成绩** 
 
 ## GATT
 
 | 芯片名称 | 主频 | Host 协议栈 | Controller 协议栈 | Host ↔ Controller 通信方式 | 与 Mac mini 实际协商 MTU | 实际 PHY 速率 | 工程地址 | 测试日期 | 最终成绩：上行 / 下行（kB/s） |
 | --- | ---: | --- | --- | --- | --- | --- | --- | --- | ---: |
-| CH32V208WBU6 | 青稞V4C 96 MHz | Apache NimBLE Host（`a86045a`） | Apache NimBLE Controller/LL（`a86045a`）+ WCH 射频寄存器驱动 | 单芯片 native/native HCI，直接函数调用，共享 MSYS | ATT MTU 256 B | LE 1M，TX/RX 均为 1M | [ch32v208-nimble](https://github.com/kaidegit/ch32v208-nimble) | 2026-10-31 | **28.48 / 28.08** |
-| CH32V208WBU6 | 青稞V4C 96 MHz | Apache NimBLE Host（`a86045a`） | Apache NimBLE Controller/LL（`a86045a`）+ WCH 射频寄存器驱动 | 单芯片 native/native HCI，直接函数调用，共享 MSYS | ATT MTU 256 B | LE 2M，TX/RX 均为 2M | [ch32v208-nimble](https://github.com/kaidegit/ch32v208-nimble) | 2026-10-31 | **56.06 / 52.23** |
-| N32WB452CEQ6（nimble 模式） | M4F 144 MHz | 板载 Apache NimBLE Host（源码固化于所链工程提交） | NZ8801 闭源 RivieraWaves Controller（Nations SDK 2.5.0；ROM/Patch 版本未独立核验） | M4F Host → 片内 QSPI H4 → NZ8801 | ATT MTU 185 B | LE 1M | [n32wb452-nimble@2beed5f](https://github.com/kaidegit/n32wb452-nimble/tree/2beed5f1878829e221b27a81bf24ac704f769032) | 2026-11-02 | **27.84 / 9.72** |
-| N32WB452CEQ6（bridge 模式） | M4F 144 MHz；Host 运行于 Mac mini | macOS blectl + Apache NimBLE Host（源码固化于所链工程提交） | NZ8801 闭源 RivieraWaves Controller（Nations SDK 2.5.0；ROM/Patch 版本未独立核验） | Mac Host → USB CDC H4 → M4F bridge → 片内 QSPI H4 → NZ8801 | ATT MTU 185 B | LE 1M | [n32wb452-nimble@2beed5f](https://github.com/kaidegit/n32wb452-nimble/tree/2beed5f1878829e221b27a81bf24ac704f769032) | 2026-11-02 | **28.63 / 9.81** |
-
-N32 两行的数据完整性、持续负载和实际 DLE/CI 已验证；用户另外通过 nRF Connect 确认两种模式 PHY 均为 LE 1M。PHY 依据为用户提供的外部工具确认，自动脚本的 PHY 命令不支持记录仍保留，不将其改写为每次 Mac 性能连接前后的自动核验。每方向 **3×30 秒**、182 B 负载、实际 DLE TX/RX=251 B（2120 µs）、CI=15 ms；与 CH32 的 2×15 秒、244 B 负载分别标注，不能视为完全同等条件。详见下方 N32 来源记录。
+| CH32V208WBU6 | 青稞V4C 96 MHz | Apache NimBLE Host（`a86045a`） | Apache NimBLE Controller/LL（`a86045a`）+ WCH 射频寄存器驱动 | 单芯片 native/native HCI，直接函数调用，共享 MSYS | ATT MTU 256 B | LE 1M | [ch32v208-nimble](https://github.com/kaidegit/ch32v208-nimble) | 2026-10-31 | **28.48 / 28.08** |
+| CH32V208WBU6 | 青稞V4C 96 MHz | Apache NimBLE Host（`a86045a`） | Apache NimBLE Controller/LL（`a86045a`）+ WCH 射频寄存器驱动 | 单芯片 native/native HCI，直接函数调用，共享 MSYS | ATT MTU 256 B | LE 2M | [ch32v208-nimble](https://github.com/kaidegit/ch32v208-nimble) | 2026-10-31 | **56.06 / 52.23** |
+| N32WB452CEQ6（nimble 模式） | M4F 144 MHz | 板载 Apache NimBLE Host | NZ8801 闭源 RivieraWaves Controller（Nations SDK 2.5.0；ROM/Patch 版本未独立核验） | M4F Host → 片内 QSPI H4 → NZ8801 | ATT MTU 185 B | LE 1M | [n32wb452-nimble@2beed5f](https://github.com/kaidegit/n32wb452-nimble/tree/2beed5f1878829e221b27a81bf24ac704f769032) | 2026-11-02 | **27.84 / 9.72** |
+| N32WB452CEQ6（bridge 模式） | M4F 144 MHz；Host 运行于 Mac mini | macOS blectl + Apache NimBLE Host | NZ8801 闭源 RivieraWaves Controller（Nations SDK 2.5.0；ROM/Patch 版本未独立核验） | Mac Host → USB CDC H4 → M4F bridge → 片内 QSPI H4 → NZ8801 | ATT MTU 185 B | LE 1M | [n32wb452-nimble@2beed5f](https://github.com/kaidegit/n32wb452-nimble/tree/2beed5f1878829e221b27a81bf24ac704f769032) | 2026-11-02 | **28.63 / 9.81** |
 
 ## L2CAP CoC
 
 | 芯片名称 | 主频 | Host 协议栈 | Controller 协议栈 | Host ↔ Controller 通信方式 | 与 Mac mini 实际协商 MTU | 实际 PHY 速率 | 工程地址 | 测试日期 | 最终成绩：上行 / 下行（kB/s） |
 | --- | ---: | --- | --- | --- | --- | --- | --- | --- | ---: |
-| CH32V208WBU6 | 96 MHz | Apache NimBLE Host（`a86045a`） | Apache NimBLE Controller/LL（`a86045a`）+ WCH 射频寄存器驱动 | 单芯片 native/native HCI，直接函数调用，共享 MSYS | 本端 2048 B；Mac 对端 1498 B；MPS 247 B | LE 1M，TX/RX 均为 1M | [ch32v208-nimble](https://github.com/kaidegit/ch32v208-nimble) | 2026-10-31 | **20.45 / 29.73** |
-| CH32V208WBU6 | 96 MHz | Apache NimBLE Host（`a86045a`） | Apache NimBLE Controller/LL（`a86045a`）+ WCH 射频寄存器驱动 | 单芯片 native/native HCI，直接函数调用，共享 MSYS | 本端 2048 B；Mac 对端 1251 B；MPS 247 B | LE 2M，TX/RX 均为 2M | [ch32v208-nimble](https://github.com/kaidegit/ch32v208-nimble) | 2026-10-31 | **30.82 / 50.78** |
+| CH32V208WBU6 | 96 MHz | Apache NimBLE Host（`a86045a`） | Apache NimBLE Controller/LL（`a86045a`）+ WCH 射频寄存器驱动 | 单芯片 native/native HCI，直接函数调用，共享 MSYS | 本端 2048 B；Mac 对端 1498 B；MPS 247 B | LE 1M | [ch32v208-nimble](https://github.com/kaidegit/ch32v208-nimble) | 2026-10-31 | **20.45 / 29.73** |
+| CH32V208WBU6 | 96 MHz | Apache NimBLE Host（`a86045a`） | Apache NimBLE Controller/LL（`a86045a`）+ WCH 射频寄存器驱动 | 单芯片 native/native HCI，直接函数调用，共享 MSYS | 本端 2048 B；Mac 对端 1251 B；MPS 247 B | LE 2M | [ch32v208-nimble](https://github.com/kaidegit/ch32v208-nimble) | 2026-10-31 | **30.82 / 50.78** |
+
+# 附录
+
+**agent 在以下填写详细备注说明** 
 
 ## CH32 历史成绩来源
 
