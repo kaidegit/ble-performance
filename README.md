@@ -4,7 +4,7 @@
 
 - **上行**：Mac mini → 芯片；**下行**：芯片 → Mac mini。
 - 成绩单位为十进制 **kB/s**（1 kB/s = 1000 B/s），统计接收端实际收到且校验通过的应用载荷，不含 ATT、L2CAP、LL 头和协议控制包。
-- 每格成绩为“**上行 / 下行**”，CH32 历史成绩取两次独立测量的算术平均值；本次 N32 补充测量取三次均值，另标 PHY 待核验。均保留两位小数，不取单次最好成绩、双向合计值或 PHY 标称速率。
+- 每格成绩为“**上行 / 下行**”，CH32 历史成绩取两次独立测量的算术平均值；本次 N32 测量取三次均值，PHY 由用户通过 nRF Connect 外部确认。均保留两位小数，不取单次最好成绩、双向合计值或 PHY 标称速率。
 - 当前 CH32 历史基线使用 Mac14,12（arm64）、macOS 15.7.5、Release 固件；所有案例实际连接间隔均为 15 ms，DLE TX/RX 均为 251 B。
 - 表中的包长、MTU、PHY 和链路参数是 CH32 的历史实测配置，不是其他芯片的准入门槛。新芯片按实际能力尽力协商并记录；不支持的通道或 PHY 不记 0，也不影响其他有效成绩入库。
 
@@ -16,10 +16,10 @@ CH32 历史测试使用 244 B 无应答写入（上行）和 244 B Notification�
 | --- | ---: | --- | --- | --- | --- | --- | --- | --- | ---: |
 | CH32V208WBU6 | 96 MHz | Apache NimBLE Host（`a86045a`） | Apache NimBLE Controller/LL（`a86045a`）+ WCH 射频寄存器驱动 | 单芯片 native/native HCI，直接函数调用，共享 MSYS | ATT MTU 256 B | LE 1M，TX/RX 均为 1M | [ch32v208-nimble](https://github.com/kaidegit/ch32v208-nimble) | 2026-10-31 | **28.48 / 28.08** |
 | CH32V208WBU6 | 96 MHz | Apache NimBLE Host（`a86045a`） | Apache NimBLE Controller/LL（`a86045a`）+ WCH 射频寄存器驱动 | 单芯片 native/native HCI，直接函数调用，共享 MSYS | ATT MTU 256 B | LE 2M，TX/RX 均为 2M | [ch32v208-nimble](https://github.com/kaidegit/ch32v208-nimble) | 2026-10-31 | **56.06 / 52.23** |
-| N32WB452CEQ6（nimble 模式） | M4F 144 MHz | 板载 Apache NimBLE Host（源码固化于所链工程提交） | NZ8801 闭源 RivieraWaves Controller（Nations SDK 2.5.0；ROM/Patch 版本未独立核验） | M4F Host → 片内 SPI H4 → NZ8801 | ATT MTU 185 B；载荷 182 B | 默认 LE 1M；PHY 查询不支持，未独立核验 | [n32wb452-nimble@2beed5f](https://github.com/kaidegit/n32wb452-nimble/tree/2beed5f1878829e221b27a81bf24ac704f769032) | 2026-11-02 | **27.84 / 9.72**（PHY 待核验） |
-| N32WB452CEQ6（bridge 模式） | M4F 144 MHz；Host 运行于 Mac mini | macOS blectl + Apache NimBLE Host（源码固化于所链工程提交） | NZ8801 闭源 RivieraWaves Controller（Nations SDK 2.5.0；ROM/Patch 版本未独立核验） | Mac Host → USB CDC H4 → M4F bridge → SPI H4 → NZ8801 | ATT MTU 185 B；载荷 182 B | 默认 LE 1M；PHY 查询不支持，未独立核验 | [n32wb452-nimble@2beed5f](https://github.com/kaidegit/n32wb452-nimble/tree/2beed5f1878829e221b27a81bf24ac704f769032) | 2026-11-02 | **28.63 / 9.81**（PHY 待核验） |
+| N32WB452CEQ6（nimble 模式） | M4F 144 MHz | 板载 Apache NimBLE Host（源码固化于所链工程提交） | NZ8801 闭源 RivieraWaves Controller（Nations SDK 2.5.0；ROM/Patch 版本未独立核验） | M4F Host → 片内 QSPI H4 → NZ8801 | ATT MTU 185 B；载荷 182 B | LE 1M（用户通过 nRF Connect 确认） | [n32wb452-nimble@2beed5f](https://github.com/kaidegit/n32wb452-nimble/tree/2beed5f1878829e221b27a81bf24ac704f769032) | 2026-11-02 | **27.84 / 9.72** |
+| N32WB452CEQ6（bridge 模式） | M4F 144 MHz；Host 运行于 Mac mini | macOS blectl + Apache NimBLE Host（源码固化于所链工程提交） | NZ8801 闭源 RivieraWaves Controller（Nations SDK 2.5.0；ROM/Patch 版本未独立核验） | Mac Host → USB CDC H4 → M4F bridge → 片内 QSPI H4 → NZ8801 | ATT MTU 185 B；载荷 182 B | LE 1M（用户通过 nRF Connect 确认） | [n32wb452-nimble@2beed5f](https://github.com/kaidegit/n32wb452-nimble/tree/2beed5f1878829e221b27a81bf24ac704f769032) | 2026-11-02 | **28.63 / 9.81** |
 
-N32 两行为补充测量：数据完整性、持续负载和实际 DLE/CI 已验证，但尚未满足 [TESTING.md 第 6 节](TESTING.md#6-有效成绩判定)“传输前后 PHY 状态读取成功”的完整有效成绩条件，因此不作为 PHY 已核验的正式排名。每方向 **3×30 秒**、182 B 负载、实际 DLE TX/RX=251 B（2120 µs）、CI=15 ms；与 CH32 的 2×15 秒、244 B 负载分别标注，不能视为完全同等条件。详见下方 N32 来源记录。
+N32 两行的数据完整性、持续负载和实际 DLE/CI 已验证；用户另外通过 nRF Connect 确认两种模式 PHY 均为 LE 1M。PHY 依据为用户提供的外部工具确认，自动脚本的 PHY 命令不支持记录仍保留，不将其改写为每次 Mac 性能连接前后的自动核验。每方向 **3×30 秒**、182 B 负载、实际 DLE TX/RX=251 B（2120 µs）、CI=15 ms；与 CH32 的 2×15 秒、244 B 负载分别标注，不能视为完全同等条件。详见下方 N32 来源记录。
 
 ## L2CAP CoC
 
@@ -41,7 +41,7 @@ CH32 历史测试使用 LE Credit Based Connection，PSM `0x0080`，测试发送
 
 ## N32 本次测量来源与限制
 
-- 固定源码：[2beed5f](https://github.com/kaidegit/n32wb452-nimble/commit/2beed5f1878829e221b27a81bf24ac704f769032)；[详细报告](https://github.com/kaidegit/n32wb452-nimble/blob/2beed5f1878829e221b27a81bf24ac704f769032/docs/gatt-perf-2026-11-02.md)；[12 项机器可读结果、固件/客户端哈希](https://github.com/kaidegit/n32wb452-nimble/blob/2beed5f1878829e221b27a81bf24ac704f769032/docs/gatt-perf-2026-11-02-results.json)。NimBLE 源码、控制器下载数组及 blectl 运行时 JSON 均可在该提交定位。
+- 固定源码：[2beed5f](https://github.com/kaidegit/n32wb452-nimble/commit/2beed5f1878829e221b27a81bf24ac704f769032)；[详细报告](https://github.com/kaidegit/n32wb452-nimble/blob/9701eafca1aee0be1933fc065ec0ecaf735920a5/docs/gatt-perf-2026-11-02.md)；[12 项机器可读结果、固件/客户端哈希](https://github.com/kaidegit/n32wb452-nimble/blob/9701eafca1aee0be1933fc065ec0ecaf735920a5/docs/gatt-perf-2026-11-02-results.json)。NimBLE 源码、控制器下载数组及 blectl 运行时 JSON 均可在该提交定位。
 - 相同 Mac mini、同一板卡分别运行两种模式；同一个 CoreBluetooth central、同一 GATT bulk 协议；Mac14,12（arm64），macOS 15.7.5（24G624）。每模式上行和下行各 3 次独立连接、每次 30 秒，交错执行。MCU 上行用 TIM2 1 MHz 硬件时钟，bridge 上行用桌面 CLOCK_MONOTONIC，下行用 Mac 单调时钟，均包含尾部排空。传输期间不访问 probe/RTT/GDB，关闭逐包 DEBUG/INFO 打印。
 - 12/12 项接收端字节数、序号及 pattern 校验通过，累计校验 **6,895,798 B**；每项都有主机或生产者背压，DLE 实际251、CI实际15ms。均值直接从每项 `payload_bytes_per_second / 1000` 计算，没有先对 kbps 舍入。
 
@@ -52,5 +52,5 @@ CH32 历史测试使用 LE Credit Based Connection，PSM `0x0080`，测试发送
 | bridge | 上行 | 28.49963 | 28.69347 | 28.70660 | **28.63** |
 | bridge | 下行 | 9.44366 | 9.98197 | 10.01527 | **9.81** |
 
-- NZ8801 的 LE PHY 读写命令返回 HCI `0x01 Unknown Command`。工具前后均记录该返回及默认 LE 1M 降级，**不是成功读取出的 PHY 实测值**；来源中的 `reference_standard_met=false` 如实保留。若将来允许此类结果正式入库，需先明确 PHY 的替代核验依据，不能把能力适配解释为略过 PHY 证据。
+- 用户通过 **nRF Connect** 确认 nimble、bridge 两种模式的 PHY 均为 **LE 1M**，成绩表采用该外部核验依据。NZ8801 的 LE PHY 读写命令仍返回 HCI `0x01 Unknown Command`；历史自动脚本记录和 `reference_standard_met=false` 原样保留，不能追溯解释成每次 Mac 性能连接前后的成功 PHY 查询。吞吐测量数值不变。内部 M4F 与 NZ8801 的 HCI 链路更正为 **QSPI H4**。
 - 本次只测 GATT，没有 L2CAP CoC 成绩；未测通道不填0。控制器射频错误/重传计数不可获取，应用层零校验错误不代表空口无重传。两种模式下行均约9.7～9.8 kB/s，仍低于上行；现有证据不足以判定为控制器射频极限。
